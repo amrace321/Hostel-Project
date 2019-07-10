@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -60,9 +61,12 @@ public class MainController {
 	    User user =userRepository.findByUserName(currentUserName());
 		HostelInfoModel hostelInfoModel = hostelrepo.findById(hostelId).get();
 
-		List<BookingInformation> bookingInformation = bookingInformationRepo.findAllByHostelInfoModel(hostelInfoModel);
-		BookingInformation bookingInfo = bookingInformationRepo.findByBookedBy(user.getId());
-		if(bookingInformation.size()>0 || bookingInfo !=null){
+		//List<BookingInformation> bookingInformation = bookingInformationRepo.findAllByHostelInfoModel(hostelInfoModel);
+		List<BookingInformation> bookingInfos = bookingInformationRepo.findAllByBookedBy(user.getId());
+
+		List<Integer> bookedHostelIds = bookingInfos.stream().map(p-> p.getHostelInfoModel().getId()).collect(Collectors.toList());
+
+		if(bookedHostelIds.contains(hostelId)){
 			model.addAttribute("bookingStatus",true);
 			if(hostelId ==1) {
 				return "homeland/property-details";

@@ -12,5 +12,5 @@ public interface BookingInformationRepo extends JpaRepository<BookingInformation
 
     List<BookingInformation> findAllByHostelInfoModel(HostelInfoModel hostelInfoModel);
     BookingInformation findByBookedBy(Integer id);
-
+    List<BookingInformation> findAllByBookedBy(Integer id);
 }
