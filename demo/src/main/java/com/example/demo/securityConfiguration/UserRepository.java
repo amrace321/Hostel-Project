@@ -8,7 +8,8 @@ import com.example.demo.modal.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
-	User findByUsername(String userName);
 
-	boolean existsByUsername(String userName);
+	User findByUserName(String username);
+
+	boolean existsByUserName(String userName);
 }

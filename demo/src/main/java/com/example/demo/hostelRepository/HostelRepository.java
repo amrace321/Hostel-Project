@@ -1,4 +1,4 @@
-package com.example.demo.hostelrepo;
+package com.example.demo.hostelRepository;
 
 import java.util.List;
 

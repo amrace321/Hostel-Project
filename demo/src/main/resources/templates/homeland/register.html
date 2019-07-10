@@ -37,6 +37,8 @@ S
    </div> 
    <p>By clicking Register, you agree on our <a href="#">terms and condition</a>.</p>
    <a href="#" class="button" type="submit">Register</a>
+   <a th:href="@{/index}" class="button" type="submit">Cancel</a>
+
    <span th:utext="${successMessage}"></span>
    <div class="alert alert-success alert-dismissible col-sm-12" 
    th:if="${(bindingResult != null && bindingResult.getAllErrors() ! =null )}">

@@ -4,11 +4,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.Principal;
+import java.util.Date;
 import java.util.List;
 
 import javax.validation.Valid;
 
+import com.example.demo.hostelRepository.BookingInformationRepo;
+import com.example.demo.modal.*;
+import com.example.demo.payload.ChargeRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -25,11 +32,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.demo.hostelRepository.HostelRepo;
 import com.example.demo.hostelRepository.StudentContactRepo;
-import com.example.demo.modal.HostelInfoModel;
-import com.example.demo.modal.SearchModel;
-import com.example.demo.modal.Signup;
-import com.example.demo.modal.Studentcontact;
-import com.example.demo.modal.User;
 import com.example.demo.securityConfiguration.RoleRepository;
 import com.example.demo.securityConfiguration.UserRepository;
 import com.example.demo.util.EmailModel;
@@ -46,13 +48,32 @@ public class MainController {
 	@Autowired
 	public UserRepository Userrepository;
 
-	@RequestMapping("/bookHostel")
-	public String getStudentcontact(@ModelAttribute Studentcontact studentContact) {
-		// List<Studentcontact> findAll = studentContactRepo.findAll();
-		// System.out.println(studentContact);
-		studentContactRepo.save(studentContact);
+	@Autowired
+	private BookingInformationRepo bookingInformationRepo;
 
-		HostelInfoModel hostelInfoModel = hostelrepo.findById(1).get();
+	@Autowired
+    private UserRepository userRepository;
+
+	@RequestMapping("/bookHostel/{hostelId}")
+	public String getStudentcontact(@ModelAttribute Studentcontact studentContact, @PathVariable Integer hostelId, Model model) {
+
+	    User user =userRepository.findByUserName(currentUserName());
+		HostelInfoModel hostelInfoModel = hostelrepo.findById(hostelId).get();
+
+		List<BookingInformation> bookingInformation = bookingInformationRepo.findAllByHostelInfoModel(hostelInfoModel);
+		BookingInformation bookingInfo = bookingInformationRepo.findByBookedBy(user.getId());
+		if(bookingInformation.size()>0 || bookingInfo !=null){
+			model.addAttribute("bookingStatus",true);
+			if(hostelId ==1) {
+				return "homeland/property-details";
+			}
+			else
+				return "homeland/property-details1";
+		}
+
+		BookingInformation bookingInformation1 = new BookingInformation(user.getId(),hostelInfoModel,new Date());
+		bookingInformationRepo.save(bookingInformation1);
+
 		// send email to user after booking
 		EmailModel emailModel = new EmailModel();
 		// emailModel.setMessage("ThankYou for booking");
@@ -79,7 +100,12 @@ public class MainController {
 		/* + "<p> Hostel Image: " + hostelInfoModel.getImagePath() + "</p>" */
 		);
 
-		emailService.sendEmail(emailModel2);
+		boolean status = emailService.sendEmail(emailModel2);
+
+		if(status) {
+			model.addAttribute("emailSent",true);
+			model.addAttribute("email",studentContact.getEmail());
+		}
 		return "homeland/property-details";
 	}
 
@@ -211,16 +237,16 @@ public class MainController {
 
 	@RequestMapping("/register")
 	public String getRegister() {
-		User findByUsername = Userrepository.findByUsername("admin");
+		User findByUsername = Userrepository.findByUserName("admin");
 		System.out.println(findByUsername);
 		System.out.println(Userrepository.findById(1));
 		return "User/signup";
 	}
 
-	@RequestMapping(value = "/saveregistered", method = RequestMethod.POST)
+	@RequestMapping(value = "/register", method = RequestMethod.POST)
 	public String getSignUp(@ModelAttribute Signup signup, Model model,RedirectAttributes attributes) {
 
-		if (Userrepository.existsByUsername(signup.getUserName())) {
+		if (Userrepository.existsByUserName(signup.getUserName())) {
 			attributes.addFlashAttribute("message", "User Name Already exists");
 			return "redirect:/register";
 
@@ -229,7 +255,7 @@ public class MainController {
 			System.out.println(signup);
 			User user = new User();
 			user.setPassword(signup.getPassword());
-			user.setUsername(signup.getUserName());
+			user.setUserName(signup.getUserName());
 			user.setAuthority("USER");
 			Userrepository.save(user);
 
@@ -239,15 +265,41 @@ public class MainController {
 			student.setPhone(signup.getContact());
 			studentContactRepo.save(student);
 		}
-		return "redirect:/";
+		model.addAttribute("registrationSuccess",true);
+		model.addAttribute("message","User is successfully registered.");
+		return "User/signup";
 //
 	}
-	/*
-	 * @PostMapping("/saveregistered") public String checkPersonInfo(@Valid Signup
-	 * signup, BindingResult bindingResult) {
-	 * 
-	 * if (bindingResult.hasErrors()) { return "redirect:/register"; }
-	 * 
-	 * return "redirect:/"; }
-	 */
+
+
+	@GetMapping("/checkout")
+    public String checkout(Model model) {
+	    String username = currentUserName();
+	    User user = userRepository.findByUserName(username);
+
+	    BookingInformation bookingInformation = bookingInformationRepo.findByBookedBy(user.getId());
+
+	    model.addAttribute("amount",bookingInformation.getHostelInfoModel().getPrice());
+	    model.addAttribute("stripePublicKey","pk_test_LH6uO0cJ79OfDxZD0gR3vykS008ToWgaH3");
+	    model.addAttribute("currency", ChargeRequest.Currency.USD);
+
+
+
+
+
+	    return "payment/checkout";
+    }
+
+
+    public static String currentUserName() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        String username = null;
+        if (principal instanceof UserDetails) {
+             username = ((UserDetails)principal).getUsername();
+        } else {
+             username = principal.toString();
+        }
+        return  username;
+    }
 }

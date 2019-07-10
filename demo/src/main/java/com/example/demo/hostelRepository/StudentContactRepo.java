@@ -6,4 +6,6 @@ import com.example.demo.modal.Studentcontact;
 
 public interface StudentContactRepo extends JpaRepository<Studentcontact, Integer>{
 
+    Studentcontact findByEmail(String email);
+
 }

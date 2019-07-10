@@ -12,10 +12,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -26,9 +26,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().authorizeRequests()
 				.antMatchers("/", "/charge", "/bookingForm", "/registerHostel", "/register", "/search-hostel", "/D:/**",
-						"/src/main/resources/static/uploadImage/*", "/D/upload_dir/**", "D:/upload_dir/**")
+						"/src/main/resources/static/uploadImage/*", "/D/upload_dir/**", "D:/upload_dir/**","/images/**")
 				.permitAll().anyRequest().authenticated().and().formLogin().loginPage("/login").permitAll()
-				.loginProcessingUrl("/login_request").defaultSuccessUrl("/home").and().logout().logoutUrl("/logout")
+				.loginProcessingUrl("/login_request").defaultSuccessUrl("/").and().logout().logoutUrl("/logout")
 				.logoutSuccessUrl("/").deleteCookies("JSESSIONID").permitAll();
 
 	}
@@ -37,7 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public DaoAuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 		authProvider.setUserDetailsService(userDetailsService);
-		authProvider.setPasswordEncoder(encoder());
+		authProvider.setPasswordEncoder(passwordEncoder());
 		return authProvider;
 	}
 
@@ -49,11 +49,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(userDetailsService).passwordEncoder(encoder());
+		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
 	}
 
 	@Bean
-	public PasswordEncoder encoder() {
-		return new BCryptPasswordEncoder(11);
+	public PasswordEncoder passwordEncoder() {
+		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
 	}
 }

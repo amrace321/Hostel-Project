@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' xmlns:th='http://www.thymeleaf.org'>
+<head>
+    <title>Payment</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="alert alert-success">Your payment has been completed successfully. Thank you for choosing us.</div>
+    <table class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Status</th>
+            <th scope="col">Charge Id</th>
+            <th scope="col">Balance transaction id</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td th:text='${id}'></td>
+            <td th:text='${status}'></td>
+            <td th:text='${chargeId}'></td>
+            <td th:text='${balance_transaction}'></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<a th:href='@{/}' class="btn btn-primary">Go to Home</a>
+
+<script th:src="@{/js/bootstrap.min.js}"></script>
+</body>
+</html>

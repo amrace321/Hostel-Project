@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
   <head>
     <title>Hostel</title>
     <meta charset="utf-8">
@@ -199,11 +199,13 @@
             </div>
           </div>
           <div class="col-lg-4">
+            <div class="alert alert-success" th:if="${emailSent}" th:text="'Booking Successful.Booking Details is sent to '+${email}"> </div>
+            <div class="alert alert-danger" th:if="${bookingStatus}" th:text="'Booking failed. This hostel is already booked or You have already booked another Hostel.'"> </div>
 
             <div class="bg-white widget border rounded">
 
               <h3 class="h4 text-black widget-title mb-3">Student Contact</h3>
-              <form action="/bookHostel" class="form-contact-agent">
+              <form action="/bookHostel/2" class="form-contact-agent">
                 <div class="form-group">
                   <label for="name">Name</label>
                   <input type="text" id="name" class="form-control" name="name">

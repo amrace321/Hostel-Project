@@ -1,6 +1,7 @@
 
 <!DOCTYPE html >
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" >
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml">
   <head>
     <title>Hostel</title>
     <meta charset="utf-8">
@@ -74,10 +75,11 @@
                       </li>
                     </ul>
                   </li>
-                  <li><a href="blog">Blog</a></li>
                   <li><a href="about">About</a></li>
                   <li><a href="/contact">Contact</a></li>
-                  <li><a href="/login">Login</a></li>
+                  <li sec:authorize="isAnonymous()"><a th:href="@{/login}">Login</a></li>
+                  <li sec:authorize="isAnonymous()"><a th:href="@{/register}">Register</a></li>
+                  <li sec:authorize="isAuthenticated()"><a th:href="@{/logout}">Logout</a></li>
                   <li  sec:authorize="hasRole('ADMIN')"><a href="/login">Admin</a></li>
                   <!-- <li><a href="/map">Map</a></li> -->
                 </ul>
@@ -118,7 +120,7 @@
             </div>
           </div>
         </div>
-      </div>  
+      </div>
 
     </div>
 
@@ -204,20 +206,20 @@
     <div class="site-section site-section-sm bg-light">
       <div class="container">
         <div class="row mb-5">
-          <div class="col-md-6 col-lg-4 mb-4" th:each="hostel : ${hostel}">
+          <div class="col-md-6 col-lg-4 mb-4" th:each="h : ${hostel}">
             <div class="property-entry h-100">
               <a href="/bookingForm" class="property-thumbnail">
                 <div class="offer-type-wrap">
                   <span class="offer-type bg-danger">Book</span>
                  <!--  <span class="offer-type bg-success">Rent</span> -->
                 </div>
-                <img th:src="${hostel.imagePath}" alt="Image" class="img-fluid">
+                <img th:src="${h.imagePath}" alt="Image" class="img-fluid">
               </a>
               <div class="p-4 property-body">
                 <a href="#" class="property-favorite"><span class="icon-heart-o"></span></a>
-                <h2 class="property-title" name="hostelName"><a href="/property-details" th:text="${hostel.hostelName}">Everest Boys Hostel</a></h2>
-                <span class="property-location d-block mb-3" th:text="${hostel.hostelAddress}"><span class="property-icon icon-room" ></span>Putalisadak, Kathmandu</span>
-                <strong class="property-price text-primary mb-3 d-block text-success" th:text="${hostel.price}">NPR 10,000</strong>
+                <h2 class="property-title" name="hostelName"><a href="/property-details" th:text="${h.hostelName}"></a></h2>
+                <span class="property-location d-block mb-3" th:text="${h.hostelAddress}"><span class="property-icon icon-room" ></span></span>
+                <strong class="property-price text-primary mb-3 d-block text-success" th:text="${h.price}"></strong>
                 <ul class="property-specs-wrap mb-3 mb-lg-0">
                   <li>
                     <span class="property-specs" >Good facility</span>
